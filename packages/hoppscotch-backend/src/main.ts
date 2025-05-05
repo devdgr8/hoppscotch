@@ -50,13 +50,20 @@ async function bootstrap() {
       configService.get('VITE_ALLOWED_AUTH_PROVIDERS'),
   );
 
+  // Fix for express-session deprecation warnings
   app.use(
     session({
       secret: configService.get('SESSION_SECRET'),
+      resave: false, // Avoid resaving session if not modified
+      saveUninitialized: false, // Avoid saving sessions that are not initialized
+      cookie: {
+        secure: process.env.NODE_ENV === 'production', // Secure cookie in production
+        maxAge: 1000 * 60 * 60 * 24, // Cookie expires after 1 day
+      },
     }),
   );
 
-  // Increase fil upload limit to 50MB
+  // Increase file upload limit to 50MB
   app.use(
     json({
       limit: '100mb',
@@ -90,8 +97,8 @@ async function bootstrap() {
 
   await setupSwagger(app);
 
-  await app.listen(configService.get('PORT') || 3170);
-
+  await app.listen(configService.get('PORT') || 3171, '0.0.0.0');
+  
   // Graceful shutdown
   process.on('SIGTERM', async () => {
     console.info('SIGTERM signal received');

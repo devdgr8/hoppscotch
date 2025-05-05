@@ -30,7 +30,15 @@ export default defineConfig({
     "process.platform": '"browser"',
   },
   server: {
-    port: 3000,
+    host: "0.0.0.0",
+    port: 3001,
+    proxy: {
+      "/v1": {
+        target: "http://192.168.0.120:3171",
+        changeOrigin: true,
+        secure: false, // Set to true if using HTTPS
+      },
+    },
   },
   preview: {
     port: 3000,
